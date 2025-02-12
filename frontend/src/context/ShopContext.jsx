@@ -56,6 +56,7 @@ const ShopContextProvider = ({ children }) => {
     setShowSearch,
     addToCart,
     getCartCount,
+    cartItems,
   };
   return <ShopContext.Provider value={value}>{children}</ShopContext.Provider>;
 };
