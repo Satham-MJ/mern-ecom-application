@@ -4,6 +4,7 @@ require("dotenv").config();
 const connectDB = require("./config/mongodb");
 const connectCloudinary = require("./config/cloudinary");
 const userRouter = require("./routes/userRoute");
+const produtRouter = require("./routes/productRoute");
 // App Config
 const app = express();
 const port = process.env.PORT || 4000;
@@ -15,6 +16,7 @@ app.use(cors());
 
 // api endpoints
 app.use("/api/user", userRouter);
+app.use("/api/product", produtRouter);
 app.get("/", (req, res) => {
   res.send("API Working");
 });
