@@ -1,5 +1,6 @@
 const Router = require("express").Router();
 const upload = require("../middleware/multer");
+const adminAuth = require("../middleware/adminAuth");
 const {
   addProduct,
   listProducts,
@@ -9,6 +10,7 @@ const {
 
 Router.post(
   "/add",
+  adminAuth,
   upload.fields([
     { name: "image1", maxCount: 1 },
     { name: "image2", maxCount: 1 },
@@ -17,7 +19,7 @@ Router.post(
   ]),
   addProduct
 );
-Router.post("/remove", removeProduct);
+Router.post("/remove", adminAuth, removeProduct);
 Router.get("/list", listProducts);
 Router.post("/single", singleProduct);
 
