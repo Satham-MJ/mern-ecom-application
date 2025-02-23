@@ -3,11 +3,84 @@ import Title from "../components/Title";
 import CartTotal from "../components/CartTotal";
 import { assets } from "../assets/assets";
 import { useShopContext } from "../context/ShopContext";
+import axios from "axios";
 const PlaceOrder = () => {
   const [method, setMethod] = useState("cod");
-  const { navigate } = useShopContext();
+  const {
+    navigate,
+    backendUrl,
+    token,
+    cartItems,
+    setCartItems,
+    getCartAmount,
+    delivery_fee,
+    products,
+  } = useShopContext();
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    street: "",
+    city: "",
+    state: "",
+    zipcode: "",
+    country: "",
+    phone: "",
+  });
+  const onChangeHandler = (event) => {
+    const name = event.target.name;
+    const value = event.target.value;
+    setFormData((data) => ({ ...data, [name]: value }));
+  };
+  const onSubmitHandler = async (event) => {
+    event.preventDefault();
+    try {
+      let orderItems = [];
+      for (const items in cartItems) {
+        for (const item in cartItems[items]) {
+          if (cartItems[items][item] > 0) {
+            const itemInfo = structuredClone(
+              products.find((product) => product._id === items)
+            );
+            if (itemInfo) {
+              itemInfo.size = item;
+              itemInfo.quantity = cartItems[items][item];
+              orderItems.push(itemInfo);
+            }
+          }
+        }
+      }
+      let orderData = {
+        address: formData,
+        items: orderItems,
+        amount: getCartAmount() + delivery_fee,
+      };
+      switch (method) {
+        // API Calls for COD
+        case "cod":
+          const response = await axios.post(
+            backendUrl + "/api/order/place",
+            orderData,
+            { headers: { token } }
+          );
+          console.log(response.data);
+          if (response.data.success) {
+            setCartItems({});
+            navigate("/orders");
+          } else {
+            toast.error(response.data.message);
+          }
+          break;
+        default:
+          break;
+      }
+    } catch (error) {}
+  };
   return (
-    <div className="flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border-t">
+    <form
+      className="flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border-t"
+      onSubmit={onSubmitHandler}
+    >
       {/* Left Side */}
       <div className="flex flex-col w-full gap-4 sm:max-w-[480px]">
         <div className="text-xl sm:text-2xl my-3">
@@ -15,33 +88,51 @@ const PlaceOrder = () => {
         </div>
         <div className="flex gap-3">
           <input
+            required
+            onChange={onChangeHandler}
+            name="firstName"
             type="text"
             placeholder="First name"
             className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
           />
           <input
+            required
+            onChange={onChangeHandler}
+            name="lastName"
             type="text"
             placeholder="Last name"
             className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
           />
         </div>
         <input
+          required
+          onChange={onChangeHandler}
+          name="email"
           type="email"
           placeholder="Email address"
           className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
         />
         <input
+          required
+          onChange={onChangeHandler}
+          name="street"
           type="text"
           placeholder="Street"
           className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
         />
         <div className="flex gap-3">
           <input
+            required
+            onChange={onChangeHandler}
+            name="city"
             type="text"
             placeholder="City"
             className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
           />
           <input
+            required
+            onChange={onChangeHandler}
+            name="state"
             type="text"
             placeholder="State"
             className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
@@ -49,17 +140,26 @@ const PlaceOrder = () => {
         </div>
         <div className="flex gap-3">
           <input
+            required
+            onChange={onChangeHandler}
+            name="zipcode"
             type="number"
             placeholder="Zip Code"
             className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
           />
           <input
+            required
+            onChange={onChangeHandler}
+            name="country"
             type="text"
             placeholder="Country"
             className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
           />
         </div>
         <input
+          required
+          onChange={onChangeHandler}
+          name="phone"
           type="text"
           placeholder="Phone"
           className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
@@ -112,7 +212,7 @@ const PlaceOrder = () => {
           </div>
           <div className="w-full text-end mt-8">
             <button
-              onClick={() => navigate("/orders")}
+              type="submit"
               className="bg-black text-white px-16 py-3 text-sm"
             >
               PLACE ORDER
@@ -120,7 +220,7 @@ const PlaceOrder = () => {
           </div>
         </div>
       </div>
-    </div>
+    </form>
   );
 };
 

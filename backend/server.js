@@ -5,6 +5,8 @@ const connectDB = require("./config/mongodb");
 const connectCloudinary = require("./config/cloudinary");
 const userRouter = require("./routes/userRoute");
 const produtRouter = require("./routes/productRoute");
+const cartRouter = require("./routes/cartRoute");
+const orderRouter = require("./routes/orderRoute");
 // App Config
 const app = express();
 const port = process.env.PORT || 4000;
@@ -17,6 +19,8 @@ app.use(cors());
 // api endpoints
 app.use("/api/user", userRouter);
 app.use("/api/product", produtRouter);
+app.use("/api/cart", cartRouter);
+app.use("/api/order", orderRouter);
 app.get("/", (req, res) => {
   res.send("API Working");
 });
